@@ -2,7 +2,49 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://example.com/2021/02/01/hello-world/</loc>
+    <loc>https://github.com/gengjl/tags/index.html</loc>
+    
+    <lastmod>2021-02-03</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://github.com/gengjl/2021/02/03/%E3%80%8A%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84%E3%80%8B/</loc>
+    
+    <lastmod>2021-02-03</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://github.com/gengjl/categories/index.html</loc>
+    
+    <lastmod>2021-02-03</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://github.com/gengjl/archives/index.html</loc>
+    
+    <lastmod>2021-02-03</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://github.com/gengjl/friends/index.html</loc>
+    
+    <lastmod>2021-02-02</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://github.com/gengjl/about/index.html</loc>
+    
+    <lastmod>2021-02-02</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://github.com/gengjl/2021/02/01/hello-world/</loc>
     
     <lastmod>2021-02-01</lastmod>
     
@@ -10,13 +52,34 @@
   
 
   <url>
-    <loc>http://example.com/</loc>
-    <lastmod>2021-02-02</lastmod>
+    <loc>https://github.com/gengjl</loc>
+    <lastmod>2021-02-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
+  <url>
+    <loc>https://github.com/gengjl/tags/%E6%9E%B6%E6%9E%84/</loc>
+    <lastmod>2021-02-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://github.com/gengjl/tags/%E9%AB%98%E6%80%A7%E8%83%BD/</loc>
+    <lastmod>2021-02-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
+  
+  <url>
+    <loc>https://github.com/gengjl/categories/%E6%9E%B6%E6%9E%84/</loc>
+    <lastmod>2021-02-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
   
 </urlset>

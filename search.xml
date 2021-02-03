@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>《大型网站技术架构》</title>
+    <url>/2021/02/03/%E3%80%8A%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84%E3%80%8B/</url>
+    <content><![CDATA[<!-- MarkdownTOC -->
+
+<ul>
+<li><a href="#1-%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E6%BC%94%E5%8C%96">1. 大型网站架构演化</a></li>
+<li><a href="#2-%E5%A4%A7%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F">2. 大型架构模式</a></li>
+<li><a href="#3-%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E8%A6%81%E7%B4%A0">3. 大型网站核心架构要素</a></li>
+<li><a href="#4-%E7%9E%AC%E6%97%B6%E5%93%8D%E5%BA%94%E7%BD%91%E7%AB%99%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84">4. 瞬时响应:网站的高性能架构</a></li>
+<li><a href="#5-%E4%B8%87%E6%97%A0%E4%B8%80%E5%A4%B1%E7%BD%91%E7%AB%99%E7%9A%84%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84">5. 万无一失:网站的高可用架构</a></li>
+<li><a href="#6-%E6%B0%B8%E6%97%A0%E6%AD%A2%E5%A2%83%E7%BD%91%E7%AB%99%E7%9A%84%E4%BC%B8%E7%BC%A9%E6%80%A7%E6%9E%B6%E6%9E%84">6. 永无止境:网站的伸缩性架构</a></li>
+<li><a href="#7-%E9%9A%8F%E6%9C%BA%E5%BA%94%E5%8F%98%E7%BD%91%E7%AB%99%E7%9A%84%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%E6%9E%B6%E6%9E%84">7. 随机应变:网站的可扩展性架构</a></li>
+<li><a href="#8-%E5%9B%BA%E8%8B%A5%E9%87%91%E6%B1%A4%E7%BD%91%E7%AB%99%E7%9A%84%E5%AE%89%E5%85%A8%E6%9C%BA%E6%9E%84">8. 固若金汤:网站的安全机构</a></li>
+</ul>
+<!-- /MarkdownTOC -->
+
+
+<h3 id="1-大型网站架构演化"><a href="#1-大型网站架构演化" class="headerlink" title="1. 大型网站架构演化"></a>1. 大型网站架构演化</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/1%20%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E6%BC%94%E5%8C%96.png" alt="1. 大型网站架构演化"></p>
+<h3 id="2-大型架构模式"><a href="#2-大型架构模式" class="headerlink" title="2. 大型架构模式"></a>2. 大型架构模式</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2%20%E5%A4%A7%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F.png" alt="2. 大型架构模式"></p>
+<h3 id="3-大型网站核心架构要素"><a href="#3-大型网站核心架构要素" class="headerlink" title="3. 大型网站核心架构要素"></a>3. 大型网站核心架构要素</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/3%20%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E8%A6%81%E7%B4%A0.png" alt="3. 大型网站核心架构要素"></p>
+<h3 id="4-瞬时响应-网站的高性能架构"><a href="#4-瞬时响应-网站的高性能架构" class="headerlink" title="4. 瞬时响应:网站的高性能架构"></a>4. 瞬时响应:网站的高性能架构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/4%20%E7%9E%AC%E6%97%B6%E5%93%8D%E5%BA%94%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84.png" alt="4. 瞬时响应:网站的高性能架构"></p>
+<h3 id="5-万无一失-网站的高可用架构"><a href="#5-万无一失-网站的高可用架构" class="headerlink" title="5. 万无一失:网站的高可用架构"></a>5. 万无一失:网站的高可用架构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/5%20%E4%B8%87%E6%97%A0%E4%B8%80%E5%A4%B1%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84.png" alt="5. 万无一失:网站的高可用架构"></p>
+<h3 id="6-永无止境-网站的伸缩性架构"><a href="#6-永无止境-网站的伸缩性架构" class="headerlink" title="6. 永无止境:网站的伸缩性架构"></a>6. 永无止境:网站的伸缩性架构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/6%20%E6%B0%B8%E6%97%A0%E6%AD%A2%E5%A2%83%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E4%BC%B8%E7%BC%A9%E6%80%A7%E6%9E%B6%E6%9E%84.png" alt="6. 永无止境:网站的伸缩性架构"></p>
+<h3 id="7-随机应变-网站的可扩展性架构"><a href="#7-随机应变-网站的可扩展性架构" class="headerlink" title="7. 随机应变:网站的可扩展性架构"></a>7. 随机应变:网站的可扩展性架构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/7%20%E9%9A%8F%E6%9C%BA%E5%BA%94%E5%8F%98%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E5%8F%AF%E6%89%A9%E5%B1%95%E6%9E%B6%E6%9E%84.png" alt="7. 随机应变:网站的可扩展性架构"></p>
+<h3 id="8-固若金汤-网站的安全机构"><a href="#8-固若金汤-网站的安全机构" class="headerlink" title="8. 固若金汤:网站的安全机构"></a>8. 固若金汤:网站的安全机构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/8%20%E5%9B%BA%E8%8B%A5%E9%87%91%E6%B1%A4%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E5%AE%89%E5%85%A8%E6%9E%B6%E6%9E%84.png" alt="enter image description here"></p>
+]]></content>
+      <categories>
+        <category>架构</category>
+      </categories>
+      <tags>
+        <tag>架构</tag>
+        <tag>高性能</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2021/02/01/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+  </entry>
+</search>
