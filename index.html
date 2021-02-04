@@ -55,7 +55,7 @@
 </tbody></table>
 <h2 id="1-2-表设计的优化"><a href="#1-2-表设计的优化" class="headerlink" title="1.2  表设计的优化"></a>1.2  表设计的优化</h2><h3 id="1-2-1、-字段类型优先级"><a href="#1-2-1、-字段类型优先级" class="headerlink" title="1.2.1、     字段类型优先级"></a>1.2.1、     字段类型优先级</h3><p>Bit&gt;int，int&gt;date,time&gt;char,varchar&gt;text，原因：整型，time运算快，节省空间。</p>
 <p>所以我们在表设计时，如果是bool类型的数据值就不应该用int类型字段。</p>
-<h3 id="1-2-2、-聚集索引字段类型的选择"><a href="#1-2-2、-聚集索引字段类型的选择" class="headerlink" title="1.2.2、     聚集索引字段类型的选择"></a>1.2.2、     聚集索引字段类型的选择</h3><p><img src="clip_image001.png" alt="img"></p>
+<h3 id="1-2-2、-聚集索引字段类型的选择"><a href="#1-2-2、-聚集索引字段类型的选择" class="headerlink" title="1.2.2、     聚集索引字段类型的选择"></a>1.2.2、     聚集索引字段类型的选择</h3><p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image001.png" alt="img"></p>
 <p>主键的索引结构中，即存储了主键值，又存储了行数据，这种结构称为“聚集索引”</p>
 <p>在插入数据时，数据节点会分裂，这个问题比较严重，节点下存储了“行数据”，分裂的时候，还要移动行数据。如果主键是无规律的，则会加速它的数据节点分裂，且效率极低。</p>
 <p>高性能索引策略：</p>
@@ -102,17 +102,17 @@
 <p>在where条件中用函数会导致表扫描，所以应该设计成标识字段，如IsEditFeeling(bit)，IsWroteBest(bit)，IsWroteWrost(bit)，SQL就可以优化成where IsEditFeeling=1，IsWrostBest=1，IsWroteWrost=1。这样就是索引扫描。</p>
 <h2 id="2-3-单列索引的设计与优化"><a href="#2-3-单列索引的设计与优化" class="headerlink" title="2.3  单列索引的设计与优化"></a>2.3  单列索引的设计与优化</h2><p>单列索引设计比较简单，一般就是根据业务条件来定义就行，如根据车系ID或车型ID。但要注意索引列的可选择性。</p>
 <h2 id="2-4-多列索引的设计与优化"><a href="#2-4-多列索引的设计与优化" class="headerlink" title="2.4  多列索引的设计与优化"></a>2.4  多列索引的设计与优化</h2><h3 id="2-4-1、-多列索引的存储规则"><a href="#2-4-1、-多列索引的存储规则" class="headerlink" title="2.4.1、     多列索引的存储规则"></a>2.4.1、     多列索引的存储规则</h3><p>假设某个表有一个联合索引(a,b,c)，我们来看下在这个索引中是如何存储这些字段数据的。</p>
-<p><img src="clip_image003.jpg" alt="img"></p>
-<p><img src="clip_image005.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image003.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image005.jpg" alt="img"></p>
 <h3 id="2-4-2、-多列索引左前缀规则"><a href="#2-4-2、-多列索引左前缀规则" class="headerlink" title="2.4.2、     多列索引左前缀规则"></a>2.4.2、     多列索引左前缀规则</h3><p>多列索引必须用到第1个，否则不生效。</p>
-<p><img src="clip_image006.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image006.png" alt="img"></p>
 <h3 id="2-4-3、-多列索引列的选择优化"><a href="#2-4-3、-多列索引列的选择优化" class="headerlink" title="2.4.3、     多列索引列的选择优化"></a>2.4.3、     多列索引列的选择优化</h3><p>根据以上的多列索引列的存储规则和左前缀规则，在建多列索引时，应该将可选择项高的列放在最左边，后面依次类推，如上面的黑盒案例分析中，应该将endTime列放在最左边，然后才是starttime列。</p>
 <p>在选择性相同的情况下，应该把等值（如：=）的放在左边，不等值（如：&gt;，&lt;）放在后面。</p>
 <p>Select * from t where object_id&gt;=20 andobject_id&lt;2000 and object_type=’TABLE’;</p>
 <p>这个查询对应的索引，应该建成</p>
 <p>Create index idx_id_type on t(object_type,object_id);</p>
 <h2 id="2-5-书签查找优化"><a href="#2-5-书签查找优化" class="headerlink" title="2.5  书签查找优化"></a>2.5  书签查找优化</h2><p><strong>2.5.</strong>      </p>
-<h3 id="2-5-1、-数据表物理存储和索引的物理索引"><a href="#2-5-1、-数据表物理存储和索引的物理索引" class="headerlink" title="2.5.1、     数据表物理存储和索引的物理索引"></a>2.5.1、     数据表物理存储和索引的物理索引</h3><p><img src="clip_image008.jpg" alt="img"></p>
+<h3 id="2-5-1、-数据表物理存储和索引的物理索引"><a href="#2-5-1、-数据表物理存储和索引的物理索引" class="headerlink" title="2.5.1、     数据表物理存储和索引的物理索引"></a>2.5.1、     数据表物理存储和索引的物理索引</h3><p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image008.jpg" alt="img"></p>
 <p><strong>数据存储块**</strong>1**<strong>（**</strong>8KB**<strong>）</strong></p>
 <table>
 <thead>
@@ -181,23 +181,23 @@
 </tr>
 </tbody></table>
 <p>因为索引里面只存储了固定了几列，如果查询时需要读取索引列之外的数据，就需要到数据存储块，根据聚集索引去重新查找我们想要的数据，这就叫书签查找。</p>
-<h3 id="2-5-2、-书签查找的缺点"><a href="#2-5-2、-书签查找的缺点" class="headerlink" title="2.5.2、     书签查找的缺点"></a>2.5.2、     书签查找的缺点</h3><p><img src="clip_image010.jpg" alt="img"></p>
-<p><img src="clip_image012.jpg" alt="img"></p>
+<h3 id="2-5-2、-书签查找的缺点"><a href="#2-5-2、-书签查找的缺点" class="headerlink" title="2.5.2、     书签查找的缺点"></a>2.5.2、     书签查找的缺点</h3><p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image010.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image012.jpg" alt="img"></p>
 <p>找出书签查找中查找的列</p>
-<p><img src="clip_image014.jpg" alt="img"></p>
-<h3 id="2-5-3、-书签查找优化"><a href="#2-5-3、-书签查找优化" class="headerlink" title="2.5.3、     书签查找优化"></a>2.5.3、     书签查找优化</h3><p><img src="clip_image016.jpg" alt="img"></p>
-<p><img src="clip_image018.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image014.jpg" alt="img"></p>
+<h3 id="2-5-3、-书签查找优化"><a href="#2-5-3、-书签查找优化" class="headerlink" title="2.5.3、     书签查找优化"></a>2.5.3、     书签查找优化</h3><p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image016.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image018.jpg" alt="img"></p>
 <h2 id="2-6-索引与排序的优化"><a href="#2-6-索引与排序的优化" class="headerlink" title="2.6  索引与排序的优化"></a>2.6  索引与排序的优化</h2><p>索引在物理存储上是有序的，所以如果我们的SQL的排序是基于索引列进行的，那么不需要再重新进行排序，反之，系统会在temp库中建立表变量或临时表，然后在这个表变量或临时表中重新进行排序。如果想为多表联查时，基于多个表做排序字段建立索引，如Order by A.Id,B.Created，则可以基于2个表建立一个物化视图，然后在这个物化视图上为这2列建立索引。</p>
 <p>Create index idx_t on t(col1 desc,col2 asc)</p>
 <p>Select * from t order by col1 desc,col2 asc</p>
 <p>0：sorts(memory)</p>
 <p>0：sorts(disk)</p>
-<p><img src="clip_image020.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image020.jpg" alt="img"></p>
 <p>SQL Server 执行时间:</p>
 <p>  CPU 时间= 2182 毫秒，占用时间= 231 毫秒。</p>
 <p>SQL Server 分析和编译时间: </p>
 <p>  CPU 时间= 0 毫秒，占用时间= 0 毫秒。</p>
-<p><img src="clip_image022.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image022.jpg" alt="img"></p>
 <p>SQL Server 执行时间:</p>
 <p>  CPU 时间= 0 毫秒，占用时间= 2 毫秒。</p>
 <p>SQL Server 分析和编译时间: </p>
@@ -224,8 +224,8 @@
 <p>表驱动顺序与性能（Nested LoopsJoin性能与驱动顺序有关）</p>
 <p>Hash Join性能与驱动顺序有关（和NL相似）</p>
 <p>Merge Sort Join性能与表驱动顺序无关</p>
-<p><img src="clip_image023.png" alt="img"></p>
-<p><img src="clip_image024.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image023.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image024.png" alt="img"></p>
 <p>Nested Loops Join优化要点</p>
 <p>1：驱动表的限制条件要有索引。2、被驱动表限制条件要建立索引。3：确保小结果集先驱动，大的被驱动。</p>
 <p>Hash Join忧化要点：1：请确保用在全扫描的OLAP场景。2：明确该SQL是否限制Hash Join。3、两表无任何索引倾向HashJoin。第1斧：两表限制条件有索引（看返回量）。第2斧：要小结果集先驱动，大的被驱动。第3斧：尽量保证PGA能容纳Hash运算。</p>
@@ -242,14 +242,14 @@
 <p>(1 row(s) affected)</p>
 <p> SQL Server 执行时间:</p>
 <p>  CPU 时间 = 140 毫秒，占用时间 = 155 毫秒。</p>
-<p><img src="clip_image026.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image026.jpg" alt="img"></p>
 <p>优化后的SQL:</p>
 <p>(1 row(s) affected)</p>
 <p>表 ‘EvaluationPurposeTerms’。扫描计数 0，逻辑读取 1638 次，物理读取 0 次，预读 0 次，lob 逻辑读取 0 次，lob 物理读取 0 次，lob 预读 0 次。</p>
 <p>表 ‘Evaluation’。扫描计数 1，逻辑读取 20 次，物理读取 0 次，预读 0 次，lob 逻辑读取 0 次，lob 物理读取 0 次，lob 预读 0 次。</p>
 <p> SQL Server 执行时间:</p>
 <p>  CPU 时间 = 0 毫秒，占用时间 = 4 毫秒。</p>
-<p><img src="clip_image028.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image028.jpg" alt="img"></p>
 <h2 id="3-3-、关联查询的优化（使用表扫描）"><a href="#3-3-、关联查询的优化（使用表扫描）" class="headerlink" title="3.3  、关联查询的优化（使用表扫描）"></a>3.3  、关联查询的优化（使用表扫描）</h2><p>QualityProblem是一个数据表，QualityProblemDictionary是一个字典表，字典表的数据基本上是固定不变的，大概80行的样子。而在与QualityProblem表关联时，QualityProblem表中符合条件数据的，每一行都会读取一次QualityProblemDictionary字典表。SQL和运行效果如下，现在打算将QualityProblemDictionary字典表一次全读取到内存中，这样就不用每条符合条件的QualityProblem表中数据都去访问QualityProblemDictionary字典表了，修改方法就是在表的Hint中指出不要用索引扫描，要采用表扫描。代码：with(index(0))</p>
 <p>SELECT [QualityId] ,[ItemId] AS [ID] ,d.Name ,d.FullName ,d.FullPath ,d.Level ,d.ParentId FROM [QualityProblem] as p with(nolock)</p>
 <p>join [QualityProblemDictionary] as d with(nolock) on d.Id = p.ItemId where p.QualityId = 592805 </p>
@@ -278,17 +278,17 @@
 <p>  CPU 时间= 2668 毫秒，占用时间= 786 毫秒。</p>
 <p>因为生成SQL的查询计划是非常耗时和耗CPU的，SQL Server在生成查询计划之后，会将已经生成的查询计划保存到计划缓存中，下次再执行该SQL时不用再重新生成一个全新的计划。</p>
 <h2 id="4-2-、如何使查询计划被缓存"><a href="#4-2-、如何使查询计划被缓存" class="headerlink" title="4.2  、如何使查询计划被缓存"></a>4.2  、如何使查询计划被缓存</h2><h3 id="4-2-1、-sp-executesql存储过程"><a href="#4-2-1、-sp-executesql存储过程" class="headerlink" title="4.2.1、     sp_executesql存储过程"></a>4.2.1、     sp_executesql存储过程</h3><p>普通的即席SQL的查询计划是没有被缓存的，通过下面的示例可以看出来。</p>
-<p><img src="clip_image029.png" alt="img"></p>
-<p><img src="clip_image030.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image029.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image030.png" alt="img"></p>
 <p>通过把SQL改写为用sp_executesql存储过程，即可实现查询计划被缓存。ado.net底层就是把我们写的SQL全部生成sp_executesql sql这种格式的sql，但ado.net无法自动区分我们sql中哪些是参数，哪些不是参数，所以光靠ado.net帮我们自动实现sp_executesql还无法实现查询计划的缓存，还需要我们手动把查询条件参数化写完整。最终实现一个标准的语法</p>
 <p>Sp_executesql @sqltext,@param1,,,,,,@paramN</p>
-<p><img src="clip_image032.jpg" alt="img"></p>
-<p><img src="clip_image033.png" alt="img"></p>
-<p><img src="clip_image035.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image032.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image033.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image035.jpg" alt="img"></p>
 <p>​      </p>
 <h3 id="4-2-2、-存储过程和函数"><a href="#4-2-2、-存储过程和函数" class="headerlink" title="4.2.2、     存储过程和函数"></a>4.2.2、     存储过程和函数</h3><p>存储过程和函数的查询计划也会被缓存。</p>
 <h2 id="4-3-、如何解决查询计划不被缓存"><a href="#4-3-、如何解决查询计划不被缓存" class="headerlink" title="4.3  、如何解决查询计划不被缓存"></a>4.3  、如何解决查询计划不被缓存</h2><p>只要采用sp_executesql，存储过程，函数这3种方式写的sql查询计划就会被缓存，但也有原因会导致他们不会被缓存，原因如下：</p>
-<p><img src="clip_image037.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image037.jpg" alt="img"></p>
 <h3 id="4-3-1、-查询计划不被缓存案例示警"><a href="#4-3-1、-查询计划不被缓存案例示警" class="headerlink" title="4.3.1、     查询计划不被缓存案例示警"></a>4.3.1、     查询计划不被缓存案例示警</h3><p>上次线上数据库CPU总是高，从DMV中查到编译数过高，原因是开发人员为线上跟踪代码运行结果和查错方便，在公共数据访问层中，自动为每一条SQL中都加了一条注释，该注释内容为当前系统的Url，因为一个公共方法会被不同模块调用，当前模块的Url自然也是不停的在变，导致SQL的查询计划无法重用。</p>
 <h2 id="4-4-、缓存的查询计划什么时候被重新生成"><a href="#4-4-、缓存的查询计划什么时候被重新生成" class="headerlink" title="4.4  、缓存的查询计划什么时候被重新生成"></a>4.4  、缓存的查询计划什么时候被重新生成</h2><p>1、当表数据增长率达到当前数据量的30%时，查询计划会被重编译。</p>
 <p>2、当新建和修改索引时。</p>
@@ -301,8 +301,8 @@
 <h1 id="6-日志库优化"><a href="#6-日志库优化" class="headerlink" title="6    日志库优化"></a>6    日志库优化</h1><p>当有insert和update,delete操作时，会在日志库中记录日志，随着时间的积累，日志库记录越来越多，每插入一条日志都非常耗时，直接影响我们系统的数据操作。</p>
 <p>解决办法：设定每天晚上自动备份，在数据库备份之后，数据库会自动收缩日志库，删除一些日志数据，这样日志库的数据量就下来了。因为数据库觉得你已经备份过了，万一出什么问题，可以用备份文件来恢复，也不需要依靠日志库来进行还原了，没必要再保存那么多日志了。</p>
 <h1 id="7-SQLServer服务器系统参数配置与性能优化"><a href="#7-SQLServer服务器系统参数配置与性能优化" class="headerlink" title="7    SQLServer服务器系统参数配置与性能优化"></a>7    SQLServer服务器系统参数配置与性能优化</h1><h2 id="7-1-、CPU最大并行度"><a href="#7-1-、CPU最大并行度" class="headerlink" title="7.1  、CPU最大并行度"></a>7.1  、CPU最大并行度</h2><p>详细描述文档：<a target="_blank" rel="noopener" href="http://jimshu.blog.51cto.com/3171847/1266978">http://jimshu.blog.51cto.com/3171847/1266978</a></p>
-<p><img src="clip_image039.jpg" alt="img"></p>
-<h2 id="7-2-、并行性开销阀值"><a href="#7-2-、并行性开销阀值" class="headerlink" title="7.2  、并行性开销阀值"></a>7.2  、并行性开销阀值</h2><p><img src="clip_image041.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image039.jpg" alt="img"></p>
+<h2 id="7-2-、并行性开销阀值"><a href="#7-2-、并行性开销阀值" class="headerlink" title="7.2  、并行性开销阀值"></a>7.2  、并行性开销阀值</h2><p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image041.jpg" alt="img"></p>
 <h2 id="7-3-、优化即席工作负载"><a href="#7-3-、优化即席工作负载" class="headerlink" title="7.3  、优化即席工作负载"></a>7.3  、优化即席工作负载</h2><h2 id="7-4-、数据库文件布局"><a href="#7-4-、数据库文件布局" class="headerlink" title="7.4  、数据库文件布局"></a>7.4  、数据库文件布局</h2><p>将数据库文件分别存放在不同的服务器上，以加快并行处理速度。</p>
 <h1 id="8-DB服务器监控"><a href="#8-DB服务器监控" class="headerlink" title="8    DB服务器监控"></a>8    DB服务器监控</h1><p>参考附件</p>
 <p>数据性能调校–查出最耗资源的各种SQL.docx</p>
@@ -318,15 +318,15 @@
 <p>2、 优化器可以根据统计信息来选择不同的连接方法和不同的连接顺序</p>
 <p>子查询中的连接条件，过滤条件分别变成了父查询的连接条件，过滤条件，优化器可以对这些条件进行下推，以提高执行效率。</p>
 <h3 id="9-2-1、-非关联子查询"><a href="#9-2-1、-非关联子查询" class="headerlink" title="9.2.1、     非关联子查询"></a>9.2.1、     非关联子查询</h3><p>非关联子查询的执行，不依赖于外层父查询的任何属性值。这样子查询具有独立性，可独自求解，形成一个子查询计划先于外层的查询求解，如：</p>
-<p><img src="clip_image042.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image042.png" alt="img"></p>
 <p>相关和非相关子询的判断条件就是看子查询是否出现外层父查询中的数据列。</p>
 <h3 id="9-2-2、-关联子查询"><a href="#9-2-2、-关联子查询" class="headerlink" title="9.2.2、     关联子查询"></a>9.2.2、     关联子查询</h3><p>相关子查询，子查询的执行依赖于外层父查询的一些属性值。子查询因依赖于父查询的参数，当父查询的参数改变时，子查询需要根据新参数值重新执行（查询优化器对相关子查询进行优化有一定意义），如：</p>
-<p><img src="clip_image043.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image043.png" alt="img"></p>
 <h3 id="9-2-3、-子查询优化方法一（子查询合并）"><a href="#9-2-3、-子查询优化方法一（子查询合并）" class="headerlink" title="9.2.3、     子查询优化方法一（子查询合并）"></a>9.2.3、     子查询优化方法一（子查询合并）</h3><p>子查询合并（subquery coalescing）</p>
 <p>在某些条件下（语义等价：两个查询块产生同样的结果集），多个子查询能够合并成一个子查询（合并后还是子查询，以后可以通过其他技术消除掉子查询）。这样可以把多次表扫描，多次连接减少为单次表扫描和单次连接，如：</p>
-<p><img src="clip_image045.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image045.jpg" alt="img"></p>
 <p>可优化为：</p>
-<p><img src="clip_image047.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image047.jpg" alt="img"></p>
 <h3 id="9-2-4、-非关联子查询优化–子查询展开"><a href="#9-2-4、-非关联子查询优化–子查询展开" class="headerlink" title="9.2.4、     非关联子查询优化–子查询展开"></a>9.2.4、     非关联子查询优化–子查询展开</h3><p>子查询展开（subquery unnesting）。</p>
 <p>又称子查询反嵌套，又称为子查询上拉。</p>
 <p>把一些子查询置于外层的父查询中，作为连接关系与外层父查询并列，其实质是把某些子查询重写为等价的多表连接操作（展开后，子查询不存在了，外部查询变成了多表连接）。</p>
@@ -336,7 +336,7 @@
 <p>INNER JOIN EvaluationPurposeTerms ept ON evl.EvaluationID = ept.EvaluationID</p>
 <p>WHERE evl.[AutoSeries] =@id and ept.PurposeID=1</p>
 <p>注意：其实子查询和联合查询中的嵌套循环查询的底层思路是一样的，都是驱动表查询被驱动表，嵌套循环的伪代码如下： </p>
-<p><img src="clip_image023.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image023.png" alt="img"></p>
 <p>那我们为什么还要修改子查询为关联查询呢？因为带来的好处是，有关的访问路径，连接方法和连接顺序可能被有效使用，使得查询语句的层次尽可能的减少。在子查询中，In语句外固定是驱动表，In语句内固定是被驱动表，如果驱动表返回1W条记录，那被驱动表则会被查询1W次。而关联查询时，驱动表和被驱动表的关系是根据谁返回数据行的大小来动态决定的，如A Join B，B返回10行，A返回1W行，则SQL底层执行时会将B作为驱动表，而A作为被驱动表，这样B执行一次查询，A执行10次查询，反过来如果A in(B)，则A执行一次查询，B执行1W次查询。</p>
 <p>代码示例2：</p>
 <p>and evl.[AutoModel] in (601,1473,1474,1993,1994,1995,2743,2750,2751,2752,3681,3682,3683,3684,5405,5819,5910,5911,10665,10666,10667,13444,13481,13482,13483,13484,13485,15377,15379,17807,17808,17809,17810,17811,17812)</p>
@@ -361,9 +361,9 @@
 <p>Where  evl.[DrivenKiloms] &gt; 5000 AND evl.[DrivenKiloms] &lt;= 20000</p>
 <h3 id="9-2-6、-关联子查询优化–谓词推入"><a href="#9-2-6、-关联子查询优化–谓词推入" class="headerlink" title="9.2.6、     关联子查询优化–谓词推入"></a>9.2.6、     关联子查询优化–谓词推入</h3><p>​     谓词推入：当SQL语句中包含有不能合并的视图，并且视图有谓词过滤（也就是where过滤条件），CBO会将where过滤条件推入视图中，这个就叫做谓词推入。谓词推入主要目的就是让SQL Server尽可能早的过滤掉无用的数据，从而提升查询性能。</p>
 <p>当SQL语句中，OR条件上面有一个为子查询，并且子查询上的表与源表不同，这个时候就可以用union代替OR或者你发现执行计划中的filter有or并且or后面跟上子查询(Exists)的时候就要注意，比如：</p>
-<p><img src="clip_image049.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image049.jpg" alt="img"></p>
 <p>修改为：</p>
-<p><img src="clip_image051.jpg" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image051.jpg" alt="img"></p>
 <p>代码示例：</p>
 <p>;WITH AppendEvalIDCTE AS( </p>
 <p>  SELECT EvaluationID</p>
@@ -398,7 +398,7 @@
 <h3 id="9-2-9、-子查询优化—-物化视图（索引视图）"><a href="#9-2-9、-子查询优化—-物化视图（索引视图）" class="headerlink" title="9.2.9、     子查询优化—-物化视图（索引视图）"></a>9.2.9、     子查询优化—-物化视图（索引视图）</h3><p>物化视图概念：对于涉及对大量的行进行复杂处理的非索引视图，为引用视图的每个查询动态生成结果集的开销会很大。这类视图包括聚集大量数据或联接许多行的视图。若经常在查询中引用这类视图，可通过在视图上创建唯一聚集索引来提高性能。在视图上创建唯一聚集索引时将执行该视图，并且结果集将存储在数据库中，就像带有聚集索引的表一样。</p>
 <p>对于涉及对大量的行进行复杂处理的视图，由于结果集已经保存为一张带有聚集索引的表，因此无需重新计算，索引视图有明显的速度优势。</p>
 <p>案例分析：</p>
-<p><img src="clip_image052.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/clip_image052.png" alt="img"></p>
 <p> SELECT ps.BrandId ,SUM(tfw.SCount) SCount FROM  [Replication].dbo.dxp_SaleData_Cleaned_Count tfw WITH(NOLOCK)INNER JOIN dbo.Product_Series ps WITH ( NOLOCK ) ON ps.SeriesId = tfw.SeriesId</p>
 <p>​           WHERE ( tfw.Syear = @spFromYear AND tfw.Smonth &gt;= @spFromMonth )</p>
 <p>​              OR ( tfw.Syear = @spToYear AND tfw.Smonth &lt; @spToMonth)</p>
@@ -472,7 +472,7 @@
 <p>AS </p>
 <p>( CTE_query_definition )</p>
 <p>代码示例：</p>
-<p><img src="数据表结构的设计与性能优化-1\clip_image053.png" alt="img"></p>
+<p><img src="/gengjl/2021/02/04/%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96-1/数据表结构的设计与性能优化-1\clip_image053.png" alt="img"></p>
 </div><hr></div><div class="recent-post-item article-container"><a class="article-title" href="/2021/02/03/%E3%80%8A%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84%E3%80%8B/">《大型网站技术架构》</a><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2021-02-03</time><span class="article-meta"><span class="article-meta__separator">|</span><i class="fa fa-inbox article-meta__icon" aria-hidden="true"></i><a class="article-meta__categories" href="/categories/%E6%9E%B6%E6%9E%84/">架构</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fa fa-tag article-meta__icon" aria-hidden="true"></i><a class="article-meta__tags" href="/tags/%E6%9E%B6%E6%9E%84/">架构</a><span class="article-meta__link">-</span><i class="fa fa-tag article-meta__icon" aria-hidden="true"></i><a class="article-meta__tags" href="/tags/%E9%AB%98%E6%80%A7%E8%83%BD/">高性能</a></span><div class="content"><!-- MarkdownTOC -->
 
 <ul>
