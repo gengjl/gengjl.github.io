@@ -299,4 +299,214 @@
 <p>2、SQL语句加Nolock。</p>
 <p>3、读写分离</p>
 <h1 id="6-日志库优化"><a href="#6-日志库优化" class="headerlink" title="6    日志库优化"></a>6    日志库优化</h1><p>当有insert和update,delete操作时，会在日志库中记录日志，随着时间的积累，日志库记录越来越多，每插入一条日志都非常耗时，直接影响我们系统的数据操作。</p>
-<p>解决办法：设
+<p>解决办法：设定每天晚上自动备份，在数据库备份之后，数据库会自动收缩日志库，删除一些日志数据，这样日志库的数据量就下来了。因为数据库觉得你已经备份过了，万一出什么问题，可以用备份文件来恢复，也不需要依靠日志库来进行还原了，没必要再保存那么多日志了。</p>
+<h1 id="7-SQLServer服务器系统参数配置与性能优化"><a href="#7-SQLServer服务器系统参数配置与性能优化" class="headerlink" title="7    SQLServer服务器系统参数配置与性能优化"></a>7    SQLServer服务器系统参数配置与性能优化</h1><h2 id="7-1-、CPU最大并行度"><a href="#7-1-、CPU最大并行度" class="headerlink" title="7.1  、CPU最大并行度"></a>7.1  、CPU最大并行度</h2><p>详细描述文档：<a target="_blank" rel="noopener" href="http://jimshu.blog.51cto.com/3171847/1266978">http://jimshu.blog.51cto.com/3171847/1266978</a></p>
+<p><img src="clip_image039.jpg" alt="img"></p>
+<h2 id="7-2-、并行性开销阀值"><a href="#7-2-、并行性开销阀值" class="headerlink" title="7.2  、并行性开销阀值"></a>7.2  、并行性开销阀值</h2><p><img src="clip_image041.jpg" alt="img"></p>
+<h2 id="7-3-、优化即席工作负载"><a href="#7-3-、优化即席工作负载" class="headerlink" title="7.3  、优化即席工作负载"></a>7.3  、优化即席工作负载</h2><h2 id="7-4-、数据库文件布局"><a href="#7-4-、数据库文件布局" class="headerlink" title="7.4  、数据库文件布局"></a>7.4  、数据库文件布局</h2><p>将数据库文件分别存放在不同的服务器上，以加快并行处理速度。</p>
+<h1 id="8-DB服务器监控"><a href="#8-DB服务器监控" class="headerlink" title="8    DB服务器监控"></a>8    DB服务器监控</h1><p>参考附件</p>
+<p>数据性能调校–查出最耗资源的各种SQL.docx</p>
+<h1 id="9-SQL语句性能优化"><a href="#9-SQL语句性能优化" class="headerlink" title="9    SQL语句性能优化"></a>9    SQL语句性能优化</h1><h2 id="9-1-、SQL语句分析方法"><a href="#9-1-、SQL语句分析方法" class="headerlink" title="9.1  、SQL语句分析方法"></a>9.1  、SQL语句分析方法</h2><p>SQL分析技巧，SQL可以分为3段：</p>
+<p>1、 Select部分，重点关注Select部分有没有标题子查询，有没有自定义函数</p>
+<p>2、 From后面，重点关注有没有内联视图，有没有视图，有没有进行视图合并</p>
+<p>3、 Where条件部分，看有没有In/Not In，Exists/Not in子查询，有没有外连接，有没有</p>
+<p>在列上面有函数导致不能走索引，比如：where len(feeling)&gt;0</p>
+<p>内联视图要手工运行返回多少行，子查询也要查看返回多少行。</p>
+<h2 id="9-2-、子查询优化"><a href="#9-2-、子查询优化" class="headerlink" title="9.2  、子查询优化"></a>9.2  、子查询优化</h2><p>子查询的特点：主查询返回一行，子查询就会被执行一次。In语句外面是驱动表，in语句里面是被驱动表。</p>
+<p>优化目的：</p>
+<p>1、 子查询不用执行很多次</p>
+<p>2、 优化器可以根据统计信息来选择不同的连接方法和不同的连接顺序</p>
+<p>子查询中的连接条件，过滤条件分别变成了父查询的连接条件，过滤条件，优化器可以对这些条件进行下推，以提高执行效率。</p>
+<h3 id="9-2-1、-非关联子查询"><a href="#9-2-1、-非关联子查询" class="headerlink" title="9.2.1、     非关联子查询"></a>9.2.1、     非关联子查询</h3><p>非关联子查询的执行，不依赖于外层父查询的任何属性值。这样子查询具有独立性，可独自求解，形成一个子查询计划先于外层的查询求解，如：</p>
+<p><img src="clip_image042.png" alt="img"></p>
+<p>相关和非相关子询的判断条件就是看子查询是否出现外层父查询中的数据列。</p>
+<h3 id="9-2-2、-关联子查询"><a href="#9-2-2、-关联子查询" class="headerlink" title="9.2.2、     关联子查询"></a>9.2.2、     关联子查询</h3><p>相关子查询，子查询的执行依赖于外层父查询的一些属性值。子查询因依赖于父查询的参数，当父查询的参数改变时，子查询需要根据新参数值重新执行（查询优化器对相关子查询进行优化有一定意义），如：</p>
+<p><img src="clip_image043.png" alt="img"></p>
+<h3 id="9-2-3、-子查询优化方法一（子查询合并）"><a href="#9-2-3、-子查询优化方法一（子查询合并）" class="headerlink" title="9.2.3、     子查询优化方法一（子查询合并）"></a>9.2.3、     子查询优化方法一（子查询合并）</h3><p>子查询合并（subquery coalescing）</p>
+<p>在某些条件下（语义等价：两个查询块产生同样的结果集），多个子查询能够合并成一个子查询（合并后还是子查询，以后可以通过其他技术消除掉子查询）。这样可以把多次表扫描，多次连接减少为单次表扫描和单次连接，如：</p>
+<p><img src="clip_image045.jpg" alt="img"></p>
+<p>可优化为：</p>
+<p><img src="clip_image047.jpg" alt="img"></p>
+<h3 id="9-2-4、-非关联子查询优化–子查询展开"><a href="#9-2-4、-非关联子查询优化–子查询展开" class="headerlink" title="9.2.4、     非关联子查询优化–子查询展开"></a>9.2.4、     非关联子查询优化–子查询展开</h3><p>子查询展开（subquery unnesting）。</p>
+<p>又称子查询反嵌套，又称为子查询上拉。</p>
+<p>把一些子查询置于外层的父查询中，作为连接关系与外层父查询并列，其实质是把某些子查询重写为等价的多表连接操作（展开后，子查询不存在了，外部查询变成了多表连接）。</p>
+<p>带来的好处是，有关的访问路径，连接方法和连接顺序可能被有效使用，使得查询语句的层次尽可能的减少。</p>
+<p>WHERE evl.[AutoSeries] =@id and evl.EvaluationID in (select EvaluationID from EvaluationPurposeTerms ept with(nolock) where ept.PurposeID=1)</p>
+<p>修改为</p>
+<p>INNER JOIN EvaluationPurposeTerms ept ON evl.EvaluationID = ept.EvaluationID</p>
+<p>WHERE evl.[AutoSeries] =@id and ept.PurposeID=1</p>
+<p>注意：其实子查询和联合查询中的嵌套循环查询的底层思路是一样的，都是驱动表查询被驱动表，嵌套循环的伪代码如下： </p>
+<p><img src="clip_image023.png" alt="img"></p>
+<p>那我们为什么还要修改子查询为关联查询呢？因为带来的好处是，有关的访问路径，连接方法和连接顺序可能被有效使用，使得查询语句的层次尽可能的减少。在子查询中，In语句外固定是驱动表，In语句内固定是被驱动表，如果驱动表返回1W条记录，那被驱动表则会被查询1W次。而关联查询时，驱动表和被驱动表的关系是根据谁返回数据行的大小来动态决定的，如A Join B，B返回10行，A返回1W行，则SQL底层执行时会将B作为驱动表，而A作为被驱动表，这样B执行一次查询，A执行10次查询，反过来如果A in(B)，则A执行一次查询，B执行1W次查询。</p>
+<p>代码示例2：</p>
+<p>and evl.[AutoModel] in (601,1473,1474,1993,1994,1995,2743,2750,2751,2752,3681,3682,3683,3684,5405,5819,5910,5911,10665,10666,10667,13444,13481,13482,13483,13484,13485,15377,15379,17807,17808,17809,17810,17811,17812)</p>
+<p>修改方法：SQL中关联Product_Spec表，</p>
+<p>INNER JOIN dbo.Product_Spec prod_Spec ON prod_Spec.SpecId=evl.AutoModel</p>
+<p>WHERE prod_Spec.SyearId=452 AND SpecState=(销售状态)</p>
+<h3 id="9-2-5、-关联子查询优化–子查询展开"><a href="#9-2-5、-关联子查询优化–子查询展开" class="headerlink" title="9.2.5、     关联子查询优化–子查询展开"></a>9.2.5、     关联子查询优化–子查询展开</h3><p>非关联子查询的每次查询都依赖了驱动表的行数据内容，所以想修改为子查询展开方式不太好做，但我们可以从业务上分析，将相关的数据修改为不相关的数据集合，然后再跟不相关的数据集合进行关联，但跟不相关数据集合关联时，要带上条件。</p>
+<p>代码示例：</p>
+<p>and ((evl.[DrivenKiloms] &gt;5000 and evl.[DrivenKiloms] &lt;=20000) or evl.EvaluationID in (select EvaluationID from EvaluationAppending with(nolock) where DrivenKilometers&gt;5000 and DrivenKilometers&lt;20000 and RowStatus=0 and EvaluationAppendingID in (select MAX(EvaluationAppendingID) as EvaluationAppendingID from EvaluationAppending where RowStatus=0 group by EvaluationID)))) as</p>
+<p>上面的逻辑含义是口碑的驱动公里数&gt;5000 And &lt;=20000，或者最后一条追加口碑的驱动公里数&gt;5000 And &lt;=20000，我们可以一次性把所有口碑的最后一条追加口碑并且是符合驱动公里数&gt;5000 And &lt;20000的条件，保存到临时表或衍生数据表和CTE中，然后用这个临时表或CTE与口碑表进行关联查询，修改后的代码如下：</p>
+<p>;WITH AppendEvalIDCTE AS( </p>
+<p>  SELECT EvaluationID</p>
+<p>​    FROM  ( SELECT  ROW_NUMBER() OVER ( PARTITION BY EvaluationID ORDER BY EvaluationAppendingID DESC ) AS RowNum ,</p>
+<p>​              EvaluationID ,DrivenKilometers</p>
+<p>​         FROM   EvaluationAppending with(nolock)</p>
+<p>​         WHERE   RowStatus = 0</p>
+<p>​        ) T</p>
+<p>​    WHERE  T.RowNum = 1 AND DrivenKilometers &gt; 5000 AND DrivenKilometers &lt;= 20000 </p>
+<p>)</p>
+<p>关联代码：</p>
+<p>INNER JOIN AppendEvalIDCTE evlAppend ON evl.EvaluationID = evlAppend.EvaluationID</p>
+<p>Where  evl.[DrivenKiloms] &gt; 5000 AND evl.[DrivenKiloms] &lt;= 20000</p>
+<h3 id="9-2-6、-关联子查询优化–谓词推入"><a href="#9-2-6、-关联子查询优化–谓词推入" class="headerlink" title="9.2.6、     关联子查询优化–谓词推入"></a>9.2.6、     关联子查询优化–谓词推入</h3><p>​     谓词推入：当SQL语句中包含有不能合并的视图，并且视图有谓词过滤（也就是where过滤条件），CBO会将where过滤条件推入视图中，这个就叫做谓词推入。谓词推入主要目的就是让SQL Server尽可能早的过滤掉无用的数据，从而提升查询性能。</p>
+<p>当SQL语句中，OR条件上面有一个为子查询，并且子查询上的表与源表不同，这个时候就可以用union代替OR或者你发现执行计划中的filter有or并且or后面跟上子查询(Exists)的时候就要注意，比如：</p>
+<p><img src="clip_image049.jpg" alt="img"></p>
+<p>修改为：</p>
+<p><img src="clip_image051.jpg" alt="img"></p>
+<p>代码示例：</p>
+<p>;WITH AppendEvalIDCTE AS( </p>
+<p>  SELECT EvaluationID</p>
+<p>​    FROM  ( SELECT  ROW_NUMBER() OVER ( PARTITION BY EvaluationID ORDER BY EvaluationAppendingID DESC ) AS RowNum ,</p>
+<p>​              EvaluationID ,DrivenKilometers</p>
+<p>​         FROM   EvaluationAppending with(nolock)</p>
+<p>​         WHERE   RowStatus = 0</p>
+<p>​        ) T</p>
+<p>​    WHERE  T.RowNum = 1 AND DrivenKilometers &gt; 5000 AND DrivenKilometers &lt;= 20000 </p>
+<p>)</p>
+<p>, AllEvalIDCTE AS</p>
+<p>( </p>
+<p>  SELECT HelpfulCount,LastAppend,Grade,AppendCount,EvaluationID FROM</p>
+<p>  ( </p>
+<p>​    SELECT evl.HelpfulCount,evl.LastAppend, evl.Grade ,evl.AppendCount,evl.EvaluationID FROM Evaluation evl </p>
+<p>​    INNER JOIN [Auto] at WITH ( NOLOCK ) ON at.AutoID = evl.AutoID</p>
+<p>​     WHERE evl.[AutoSeries] =@id</p>
+<p>​        AND evl.[DrivenKiloms] &gt; 5000 AND evl.[DrivenKiloms] &lt;= 20000</p>
+<p>​    UNION</p>
+<p>​     SELECT evl.HelpfulCount,evl.LastAppend, evl.Grade ,evl.AppendCount,evl.EvaluationID FROM Evaluation evl </p>
+<p>​     INNER JOIN [Auto] at WITH ( NOLOCK ) ON at.AutoID = evl.AutoID </p>
+<p>​    INNER JOIN AppendEvalIDCTE evlAppend ON evl.EvaluationID = evlAppend.EvaluationID</p>
+<p>​     WHERE evl.[AutoSeries] =@id  </p>
+<p>​        –不能再有了AND evl.[DrivenKiloms] &gt; 5000 AND evl.[DrivenKiloms] &lt;= 20000 </p>
+<p>  ) T</p>
+<p>)</p>
+<h3 id="9-2-7、-子查询优化—-Update语句"><a href="#9-2-7、-子查询优化—-Update语句" class="headerlink" title="9.2.7、     子查询优化—-Update语句"></a>9.2.7、     子查询优化—-Update语句</h3><p>update table_1 set score = score + 5 where uid in (<a target="_blank" rel="noopener" href="http://www.111cn.net/tags.php/select/">select</a> uid from table_2 where sid = 10);</p>
+<p>其实update也可以用到left join、inner join来进行关联，可能执行效率更高，把上面的sql替换成join的方式如下：</p>
+<p>update table_1 t1 inner join table_2 t2 on t1.uid = t2.uid set score = score + 5 where t2.sid = 10;</p>
+<h3 id="9-2-8、-子查询优化—-字段冗余"><a href="#9-2-8、-子查询优化—-字段冗余" class="headerlink" title="9.2.8、     子查询优化—-字段冗余"></a>9.2.8、     子查询优化—-字段冗余</h3><p>在Evaluation表新建一个LastAppendingDrivenKilometers字段</p>
+<p>用于冗余存放EvaluationAppending表中当前口碑的最后一条追加数据的DrivenKilometers字段数据，代码就简洁多了。</p>
+<h3 id="9-2-9、-子查询优化—-物化视图（索引视图）"><a href="#9-2-9、-子查询优化—-物化视图（索引视图）" class="headerlink" title="9.2.9、     子查询优化—-物化视图（索引视图）"></a>9.2.9、     子查询优化—-物化视图（索引视图）</h3><p>物化视图概念：对于涉及对大量的行进行复杂处理的非索引视图，为引用视图的每个查询动态生成结果集的开销会很大。这类视图包括聚集大量数据或联接许多行的视图。若经常在查询中引用这类视图，可通过在视图上创建唯一聚集索引来提高性能。在视图上创建唯一聚集索引时将执行该视图，并且结果集将存储在数据库中，就像带有聚集索引的表一样。</p>
+<p>对于涉及对大量的行进行复杂处理的视图，由于结果集已经保存为一张带有聚集索引的表，因此无需重新计算，索引视图有明显的速度优势。</p>
+<p>案例分析：</p>
+<p><img src="clip_image052.png" alt="img"></p>
+<p> SELECT ps.BrandId ,SUM(tfw.SCount) SCount FROM  [Replication].dbo.dxp_SaleData_Cleaned_Count tfw WITH(NOLOCK)INNER JOIN dbo.Product_Series ps WITH ( NOLOCK ) ON ps.SeriesId = tfw.SeriesId</p>
+<p>​           WHERE ( tfw.Syear = @spFromYear AND tfw.Smonth &gt;= @spFromMonth )</p>
+<p>​              OR ( tfw.Syear = @spToYear AND tfw.Smonth &lt; @spToMonth)</p>
+<p>​              OR ( tfw.Syear &gt; @spFromYear AND tfw.Syear &lt; @spToYear)</p>
+<p>​           GROUP BY ps.BrandId) s ON s.BrandId = sbf.BrandId</p>
+<p>WHERE  1 = 1 AND sbf.CarType = 1 AND sbf.CountryId IN (1,2,3,4,5,6)</p>
+<p>(8 行受影响)</p>
+<p>表’dxp_SaleData_Cleaned_Count’。扫描计数1，逻辑读取378 次，物理读取0 次，预读0 次，lob 逻辑读取0 次，lob 物理读取0 次，lob 预读0 次。</p>
+<p>表’Product_Series’。扫描计数1，逻辑读取10 次，物理读取0 次，预读0 次，lob 逻辑读取0 次，lob 物理读取0 次，lob 预读0 次。</p>
+<p> SQL Server 执行时间:</p>
+<p>  CPU 时间= 15 毫秒，占用时间= 15 毫秒。</p>
+<p>CREATE VIEW v_dxp_SaleData_Cleaned_Count WITH SCHEMABINDING AS</p>
+<p>SELECT id,SeriesId,SCount,(Syear*100+Smonth))AS YearMonth</p>
+<p>FROM dbo.dxp_SaleData_Cleaned_Count</p>
+<p>CREATE UNIQUE CLUSTERED INDEX v_dxp_SaleData_Cleaned_Count_Idx_ID ON v_dxp_SaleData_Cleaned_Count(id ASC);</p>
+<p>CREATE NONCLUSTERED INDEX v_dxp_SaleData_Cleaned_Count_Idx_YearMonth ON v_dxp_SaleData_Cleaned_Count(YearMonth ASC)INCLUDE(SeriesId,SCount);</p>
+<p>;WITH CTE AS</p>
+<p>(</p>
+<p>SELECT ps.BrandId , SUM(tfw.SCount) SCount FROM  [Replication].dbo.v_dxp_SaleData_Cleaned_Count tfw WITH(NOLOCK)</p>
+<p>INNER JOIN koubei.dbo.Product_Series ps WITH ( NOLOCK ) ON ps.SeriesId = tfw.SeriesId </p>
+<p>WHERE tfw.YearMonth&gt;=201407 AND tfw.yearmonth&lt;201511 GROUP BY ps.BrandId</p>
+<p>)</p>
+<p>SELECT sbf.BrandId Id,sbf.BrandName Name,sbf.PPH ,sbf.DefectiveSampleCount ,</p>
+<p>​    sbf.TroublefreeSamplesCount ,CTE.SCount</p>
+<p>FROM  koubei.dbo.Stat_Brand_Fault sbf WITH ( NOLOCK ) INNER JOIN CTE ON CTE.BrandId = sbf.BrandId</p>
+<p>WHERE  1 = 1 AND sbf.CarType = 1 AND sbf.CountryId &gt;=1 AND sbf.CountryId&lt;=6 – (1,2,3,4,5,6)</p>
+<p>表’v_dxp_SaleData_Cleaned_Count’。扫描计数1，逻辑读取34 次，物理读取0 次，预读0 次，lob 逻辑读取0 次，lob 物理读取0 次，lob 预读0 次。</p>
+<p>表’Product_Series’。扫描计数1，逻辑读取10 次，物理读取0 次，预读0 次，lob 逻辑读取0 次，lob 物理读取0 次，lob 预读0 次。</p>
+<p> SQL Server 执行时间:</p>
+<p>  CPU 时间= 0 毫秒，占用时间= 5 毫秒。</p>
+<h2 id="9-3-、海量数据分页优化"><a href="#9-3-、海量数据分页优化" class="headerlink" title="9.3  、海量数据分页优化"></a>9.3  、海量数据分页优化</h2><h3 id="9-3-1、-延迟索引"><a href="#9-3-1、-延迟索引" class="headerlink" title="9.3.1、     延迟索引"></a>9.3.1、     延迟索引</h3><p>海量数据分页优化的2个重要思想就是：延迟索引和延迟关联。</p>
+<p>举例：</p>
+<p>select id,name from lx_com join userInfo between 5000000 and 5000010;</p>
+<p>这个SQL中，它的工作原理是，他先取500W条，并且因为name字段不是主键，需要不断的回行到磁盘上去取，然后最后返回的是500W到5000010行数据，那么前500W行数据的name，又要扔掉，不返给客户端，这样就形成极大的资源浪费。</p>
+<p>修改为</p>
+<p>With T as (select id from lx_com between 5000000 and 5000010) </p>
+<p>select id,name from UserInfo join T on UserInfo.id=T.id</p>
+<p>具体项目中的应用：</p>
+<p>;WITH AllCTE AS( SELECT evl.EvaluationID,ROW_NUMBER() OVER(ORDER BY evl.Grade desc,evl.AppendCount desc,evl.LastAppend desc) </p>
+<p>AS RowNum FROM Evaluation evl WITH(NOLOCK)</p>
+<p>WHERE  evl.[AutoSeries]=@id),evlCTE AS </p>
+<p>(SELECT TOP 100 PERCENT EvaluationID,RowNum FROM AllCTE WHERE RowNum BETWEEN @pagstart AND @pagend ORDER BY RowNum ASC)</p>
+<h3 id="9-3-2、-延迟关联"><a href="#9-3-2、-延迟关联" class="headerlink" title="9.3.2、     延迟关联"></a>9.3.2、     延迟关联</h3><p> SELECT evlCTE.RowNum,evl.AppendCount,evl.EvaluationID,evl.AutoID,at.Brand AS AutoBrand,evl.AutoModel,evl.AutoSeries</p>
+<p>​           ,evl.AutoOwner,at.[Level] AS AutoLevel,evl.CommentCount,evl.HelpfulCount</p>
+<p>​        ,evl.Created,evl.FeelingSummary ,at.BoughtDate AS AutoBoughtDate,at.BoughtProvince AS AutoBoughtProvince</p>
+<p>,at.BoughtCity AS AutoBoughtCity, up.MemberId,up.NickName,up.IsAuthenticated,up.Gender,up.HeadImage,up.UserGrade,ps.SpecName</p>
+<p>,ps.MinPrice,pss.SeriesName,pss.IsElectric </p>
+<p>FROM evlCTE INNER JOIN Evaluation evl WITH(NOLOCK) ON evlCTE.EvaluationID = evl.EvaluationID</p>
+<p>INNER JOIN [Auto] at with(nolock) ON at.AutoID = evl.AutoID INNER JOIN UserProxy up with(nolock) ON up.UserID = evl.AutoOwner</p>
+<p>INNER JOIN Product_Spec ps with(nolock) ON ps.SpecId=evl.AutoModel</p>
+<p>INNER JOIN Product_Series pss with(nolock) ON pss.SeriesId=evl.AutoSeries ORDER BY evlCTE.RowNum ASC;</p>
+<h3 id="9-3-3、-求总行数的性能优化"><a href="#9-3-3、-求总行数的性能优化" class="headerlink" title="9.3.3、     求总行数的性能优化"></a>9.3.3、     求总行数的性能优化</h3><p>1、 连接消除</p>
+<p>在求总行数是，凡是仅仅是因为显示数据列需要关联的表，就可以不用再关联了。</p>
+<p>2、 排序消除</p>
+<p>排序是需要很大消耗的，在求总行数时，不需要再用到排序。</p>
+<p>3、 与分页数据查询放在同一个查询中执行，这样可以减少网络连接与传输</p>
+<p>第一笔数据就是分页数据，比如：第10条到第20条数据，另外一笔数据是当前查询的总记录数，那么我们可以用一个”;”分号进行SQL来实现一次查询取出2笔数据，然后在C#的DataSet对象中分别从Table[0]和Table[1]中取出这2笔不同的数据。</p>
+<p>简化后的代码如下：</p>
+<p>SELECT COUNT(*)AS TotalCount</p>
+<p> FROM Evaluation evl WITH(NOLOCK) WHERE evl.RowStatus=0 AND evl.[AutoSeries]=@id and evl.[EditedFeeling]=1 and evl.[Grade]&gt;-10</p>
+<h2 id="9-4-、With-As与性能优化"><a href="#9-4-、With-As与性能优化" class="headerlink" title="9.4  、With As与性能优化"></a>9.4  、With As与性能优化</h2><p>对于SELECT查询语句来说,通常情况下，为了使T-SQL代码更加简洁和可读，在一个查询中引用另外的结果集都是通过视图而不是子查询来进行分解的.但是，视图是作为系统对象存在数据库中，那对于结果集仅仅需要在存储过程或是用户自定义函数中使用一次的时候，使用视图就显得有些奢侈了.</p>
+<p>  公用表表达式（Common Table Expression)是SQL SERVER 2005版本之后引入的一个特性.CTE可以看作是一个临时的结果集，可以在接下来的一个SELECT,INSERT,UPDATE,DELETE,MERGE语句中被多次引用。使用公用表达式可以让语句更加清晰简练.</p>
+<p>   除此之外，根据微软对CTE好处的描述，可以归结为四点:</p>
+<p>·     可以定义递归公用表表达式(CTE)</p>
+<p>·     当不需要将结果集作为视图被多个地方引用时，CTE可以使其更加简洁</p>
+<p>·     GROUP BY语句可以直接作用于子查询所得的标量列</p>
+<p>·     可以在一个语句中多次引用公用表表达式(CTE)</p>
+<p>·     注意：如果with as短语被调用了2次以上，CBO会自动将with as 短语的数据放入一个临时表。</p>
+<p>在MSDN中的原型：</p>
+<p>WITH expression_name [ ( column_name [,…n] ) ] </p>
+<p>AS </p>
+<p>( CTE_query_definition )</p>
+<p>代码示例：</p>
+<p><img src="数据表结构的设计与性能优化-1\clip_image053.png" alt="img"></p>
+</div><hr></div><div class="recent-post-item article-container"><a class="article-title" href="/2021/02/03/%E3%80%8A%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%8A%80%E6%9C%AF%E6%9E%B6%E6%9E%84%E3%80%8B/">《大型网站技术架构》</a><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2021-02-03</time><span class="article-meta"><span class="article-meta__separator">|</span><i class="fa fa-inbox article-meta__icon" aria-hidden="true"></i><a class="article-meta__categories" href="/categories/%E6%9E%B6%E6%9E%84/">架构</a></span><span class="article-meta tags"><span class="article-meta__separator">|</span><i class="fa fa-tag article-meta__icon" aria-hidden="true"></i><a class="article-meta__tags" href="/tags/%E6%9E%B6%E6%9E%84/">架构</a><span class="article-meta__link">-</span><i class="fa fa-tag article-meta__icon" aria-hidden="true"></i><a class="article-meta__tags" href="/tags/%E9%AB%98%E6%80%A7%E8%83%BD/">高性能</a></span><div class="content"><!-- MarkdownTOC -->
+
+<ul>
+<li><a href="#1-%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E6%BC%94%E5%8C%96">1. 大型网站架构演化</a></li>
+<li><a href="#2-%E5%A4%A7%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F">2. 大型架构模式</a></li>
+<li><a href="#3-%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E8%A6%81%E7%B4%A0">3. 大型网站核心架构要素</a></li>
+<li><a href="#4-%E7%9E%AC%E6%97%B6%E5%93%8D%E5%BA%94%E7%BD%91%E7%AB%99%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84">4. 瞬时响应:网站的高性能架构</a></li>
+<li><a href="#5-%E4%B8%87%E6%97%A0%E4%B8%80%E5%A4%B1%E7%BD%91%E7%AB%99%E7%9A%84%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84">5. 万无一失:网站的高可用架构</a></li>
+<li><a href="#6-%E6%B0%B8%E6%97%A0%E6%AD%A2%E5%A2%83%E7%BD%91%E7%AB%99%E7%9A%84%E4%BC%B8%E7%BC%A9%E6%80%A7%E6%9E%B6%E6%9E%84">6. 永无止境:网站的伸缩性架构</a></li>
+<li><a href="#7-%E9%9A%8F%E6%9C%BA%E5%BA%94%E5%8F%98%E7%BD%91%E7%AB%99%E7%9A%84%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%E6%9E%B6%E6%9E%84">7. 随机应变:网站的可扩展性架构</a></li>
+<li><a href="#8-%E5%9B%BA%E8%8B%A5%E9%87%91%E6%B1%A4%E7%BD%91%E7%AB%99%E7%9A%84%E5%AE%89%E5%85%A8%E6%9C%BA%E6%9E%84">8. 固若金汤:网站的安全机构</a></li>
+</ul>
+<!-- /MarkdownTOC -->
+
+
+<h3 id="1-大型网站架构演化"><a href="#1-大型网站架构演化" class="headerlink" title="1. 大型网站架构演化"></a>1. 大型网站架构演化</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/1%20%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E6%BC%94%E5%8C%96.png" alt="1. 大型网站架构演化"></p>
+<h3 id="2-大型架构模式"><a href="#2-大型架构模式" class="headerlink" title="2. 大型架构模式"></a>2. 大型架构模式</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2%20%E5%A4%A7%E5%9E%8B%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F.png" alt="2. 大型架构模式"></p>
+<h3 id="3-大型网站核心架构要素"><a href="#3-大型网站核心架构要素" class="headerlink" title="3. 大型网站核心架构要素"></a>3. 大型网站核心架构要素</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/3%20%E5%A4%A7%E5%9E%8B%E7%BD%91%E7%AB%99%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E8%A6%81%E7%B4%A0.png" alt="3. 大型网站核心架构要素"></p>
+<h3 id="4-瞬时响应-网站的高性能架构"><a href="#4-瞬时响应-网站的高性能架构" class="headerlink" title="4. 瞬时响应:网站的高性能架构"></a>4. 瞬时响应:网站的高性能架构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/4%20%E7%9E%AC%E6%97%B6%E5%93%8D%E5%BA%94%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84.png" alt="4. 瞬时响应:网站的高性能架构"></p>
+<h3 id="5-万无一失-网站的高可用架构"><a href="#5-万无一失-网站的高可用架构" class="headerlink" title="5. 万无一失:网站的高可用架构"></a>5. 万无一失:网站的高可用架构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/5%20%E4%B8%87%E6%97%A0%E4%B8%80%E5%A4%B1%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84.png" alt="5. 万无一失:网站的高可用架构"></p>
+<h3 id="6-永无止境-网站的伸缩性架构"><a href="#6-永无止境-网站的伸缩性架构" class="headerlink" title="6. 永无止境:网站的伸缩性架构"></a>6. 永无止境:网站的伸缩性架构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/6%20%E6%B0%B8%E6%97%A0%E6%AD%A2%E5%A2%83%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E4%BC%B8%E7%BC%A9%E6%80%A7%E6%9E%B6%E6%9E%84.png" alt="6. 永无止境:网站的伸缩性架构"></p>
+<h3 id="7-随机应变-网站的可扩展性架构"><a href="#7-随机应变-网站的可扩展性架构" class="headerlink" title="7. 随机应变:网站的可扩展性架构"></a>7. 随机应变:网站的可扩展性架构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/7%20%E9%9A%8F%E6%9C%BA%E5%BA%94%E5%8F%98%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E5%8F%AF%E6%89%A9%E5%B1%95%E6%9E%B6%E6%9E%84.png" alt="7. 随机应变:网站的可扩展性架构"></p>
+<h3 id="8-固若金汤-网站的安全机构"><a href="#8-固若金汤-网站的安全机构" class="headerlink" title="8. 固若金汤:网站的安全机构"></a>8. 固若金汤:网站的安全机构</h3><p><img src="https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/8%20%E5%9B%BA%E8%8B%A5%E9%87%91%E6%B1%A4%EF%BC%9A%E7%BD%91%E7%AB%99%E7%9A%84%E5%AE%89%E5%85%A8%E6%9E%B6%E6%9E%84.png" alt="enter image description here"></p>
+</div><hr></div><div class="recent-post-item article-container"><a class="article-title" href="/2021/02/01/hello-world/">Hello World</a><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2021-02-01</time><div class="content"><p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+</div><hr></div><nav id="pagination"><div class="pagination"><span class="page-number current">1</span></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2019 - 2021 By Garin</div><div class="framework-info"><span>Driven - </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_site_uv"><i class="fa fa-user"></i><span id="busuanzi_value_site_uv"></span><span></span></span><span class="footer-separator">|</span><span id="busuanzi_container_site_pv"><i class="fa fa-eye"></i><span id="busuanzi_value_site_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/lib/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.9.0"></script><script src="/js/fancybox.js?version=1.9.0"></script><script src="/js/sidebar.js?version=1.9.0"></script><script src="/js/copy.js?version=1.9.0"></script><script src="/js/fireworks.js?version=1.9.0"></script><script src="/js/transition.js?version=1.9.0"></script><script src="/js/scroll.js?version=1.9.0"></script><script src="/js/head.js?version=1.9.0"></script><script src="/js/search/local-search.js"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts"></div></div></div><hr><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fa fa-times"></i></span></div><div class="search-mask"></div></body></html>
